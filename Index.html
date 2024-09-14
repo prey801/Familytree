@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Relationships</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, select, button {
+            padding: 5px;
+            font-size: 16px;
+        }
+        #relationships {
+            margin-top: 20px;
+        }
+        .delete-btn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Family Relationships</h1>
+    <form id="relationshipForm">
+        <input type="text" id="name1" placeholder="Enter first name" required>
+        <input type="text" id="name2" placeholder="Enter second name" required>
+        <select id="relationship">
+            <option value="parent">is parent of</option>
+            <option value="child">is child of</option>
+            <option value="sibling">is sibling of</option>
+            <option value="spouse">is spouse of</option>
+        </select>
+        <button type="submit">Add Relationship</button>
+    </form>
+    <div id="relationships"></div>
+
+    <script type="module">
+        import FamilyDataStorage from './family-data.js';
+
+        const dataStorage = new FamilyDataStorage();
+        const form = document.getElementById('relationshipForm');
+        const relationshipsDiv = document.getElementById('relationships');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name1 = document.getElementById('name1').value;
+            const name2 = document.getElementById('name2').value;
+            const relationship = document.getElementById('relationship').value;
+
+            dataStorage.addRelationship(name1, name2, relationship);
+            updateRelationshipsList();
+            form.reset();
+        });
+
+        function updateRelationshipsList() {
+            const relationships = dataStorage.getAllRelationships();
+            relationshipsDiv.innerHTML = '<h2>Relationships:</h2>';
+            const ul = document.createElement('ul');
+            relationships.forEach(rel => {
+                const li = document.createElement('li');
+                li.textContent = `${rel.name1} ${rel.type} ${rel.name2}`;
+                const deleteBtn = document.createElement('span');
+                deleteBtn.textContent = '❌';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => deleteRelationship(rel.id);
+                li.appendChild(deleteBtn);
+                ul.appendChild(li);
+            });
+            relationshipsDiv.appendChild(ul);
+        }
+
+        function deleteRelationship(id) {
+            dataStorage.deleteRelationship(id);
+            updateRelationshipsList();
+        }
+
+        // Initial load of relationships
+        updateRelationshipsList();
+    </script>
+</body>
+</html>
